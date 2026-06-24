@@ -1,0 +1,62 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'windows/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r windows/requirements.txt
+
+      - name: Build EXE with PyInstaller
+        run: |
+          cd windows
+          pyinstaller --onefile --noconsole --name ClipSync `
+            --add-data "." `
+            --hidden-import pystray._win32 `
+            --hidden-import PIL._tkinter_finder `
+            clip_sync_app.py
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ClipSync-Windows
+          path: windows/dist/ClipSync.exe
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: "ClipSync v${{ github.run_number }}"
+          files: windows/dist/ClipSync.exe
+          body: |
+            Windows 클립보드 동기화 앱
+
+            **설치 방법:**
+            1. `ClipSync.exe` 다운로드
+            2. 실행하면 시스템 트레이에 아이콘 생성
+            3. 트레이 아이콘 더블클릭 → 히스토리 창
+
+            **기능:**
+            - Windows ↔ Android 클립보드 실시간 동기화
+            - 최대 50개 히스토리 보관
+            - 검색, 복사, 삭제 지원
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

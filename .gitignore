@@ -1,0 +1,16 @@
+*.pyc
+__pycache__/
+*.spec
+build/
+dist/
+*.egg-info/
+.DS_Store
+*.log
+
+# Android
+*.apk
+*.aab
+android/.gradle/
+android/local.properties
+android/app/build/
+android/.idea/
