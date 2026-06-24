@@ -27,11 +27,7 @@ jobs:
       - name: Build EXE with PyInstaller
         run: |
           cd windows
-          pyinstaller --onefile --noconsole --name ClipSync `
-            --add-data "." `
-            --hidden-import pystray._win32 `
-            --hidden-import PIL._tkinter_finder `
-            clip_sync_app.py
+          pyinstaller --onefile --noconsole --name ClipSync --hidden-import pystray._win32 --hidden-import PIL._tkinter_finder clip_sync_app.py
 
       - name: Upload EXE artifact
         uses: actions/upload-artifact@v4
